@@ -16,7 +16,7 @@ struct irColor_s {
   color_s color;
 };
 
-irColor_s remoteColors [20] = {
+irColor_s remoteColors [18] = {
   {0xFF1AE5, 0xF800, {255, 0, 0} }, // Red
   {0xFF2AD5, 0xFA00, {255, 63, 0} }, // Red-Orange (Red 2)
   {0xFF0AF5, 0xFBE0, {255, 127, 0} }, // Orange (Red 3)
@@ -34,9 +34,9 @@ irColor_s remoteColors [20] = {
   {0xFF58A7, 0xF81F, {255, 0, 255} }, // Magenta (Blue 5)
   {0xFF22DD, 0xFFFF, {255, 255, 255} }, // White
   {0xFF12ED, 0xFDF7, {255, 191, 191} }, // White 2
-  {0xFF32CD, 0xFDF7, {255, 191, 191} }, // White 3
+  // {0xFF32CD, 0xFDF7, {255, 191, 191} }, // White 3
   {0xFFF807, 0xBDFF, {191, 191, 255} }, // White 4
-  {0xFFD827, 0xBDFF, {191, 191, 255} } // White 5
+  // {0xFFD827, 0xBDFF, {191, 191, 255} } // White 5
 };
 
 #endif
