@@ -48,23 +48,6 @@ void paintColors() {
       inc++;
     }
   }
-  
-//  // make the color selection boxes
-//  // First Row
-//  tft.fillRect(0, 0, BOXSIZE, BOXSIZE, ILI9341_RED);
-//  tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, ILI9341_ORANGE);
-//  tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, ILI9341_YELLOW);
-//  tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, ILI9341_GREENYELLOW);
-//  tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, ILI9341_GREEN);
-//  tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, ILI9341_CYAN);
-//
-//  // Second Row
-//  tft.fillRect(0, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_BLUE);
-//  tft.fillRect(BOXSIZE, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_PURPLE);
-//  tft.fillRect(BOXSIZE*2, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_MAGENTA);
-//  tft.fillRect(BOXSIZE*3, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_WHITE);
-//  tft.fillRect(BOXSIZE*4, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_DARKGREY);
-//  tft.fillRect(BOXSIZE*5, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_BLACK);
 }
 
 
