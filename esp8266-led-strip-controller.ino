@@ -21,6 +21,7 @@
 // Size of the color selection boxes and the paintbrush size
 #define BOXSIZE 40
 int oldcolor, currentcolor;
+uint8_t colorIndex;
 
 TS_Point oldpoint, p;
 
@@ -85,59 +86,43 @@ void setup(void) {
   paintSwitch();
 
   currentcolor = ILI9341_RED;
+  colorIndex = 0;
 
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
 }
 
 void updatePixel() {
-  strip.setPixelColor(currentPixel, currentcolor);
+  color_s col = remoteColors[colorIndex].color;
+  
+  strip.setPixelColor(currentPixel, strip.Color(col.red, col.green, col.blue));
   currentPixel = (currentPixel + 1) % PIXELCOUNT;
   strip.show();
 }
 
 void checkSettings() {
+  uint8_t offset_x, offset_y;
+  
   // Color buttons first
-  if (p.y < BOXSIZE*2) {
-     oldcolor = currentcolor;
+  if (p.y < BOXSIZE*3) {
+    oldcolor = currentcolor;
 
-     if (p.y < BOXSIZE) {
-       if (p.x < BOXSIZE) { 
-         currentcolor = ILI9341_RED; 
-       } else if (p.x < BOXSIZE*2) {
-         currentcolor = ILI9341_ORANGE;
-       } else if (p.x < BOXSIZE*3) {
-         currentcolor = ILI9341_YELLOW;
-       } else if (p.x < BOXSIZE*4) {
-         currentcolor = ILI9341_GREENYELLOW;
-       } else if (p.x < BOXSIZE*5) {
-         currentcolor = ILI9341_GREEN;
-       } else if (p.x < BOXSIZE*6) {
-         currentcolor = ILI9341_CYAN;
-       }
-     } else {
-       if (p.x < BOXSIZE) { 
-         currentcolor = ILI9341_BLUE; 
-       } else if (p.x < BOXSIZE*2) {
-         currentcolor = ILI9341_PURPLE;
-       } else if (p.x < BOXSIZE*3) {
-         currentcolor = ILI9341_MAGENTA;
-       } else if (p.x < BOXSIZE*4) {
-         currentcolor = ILI9341_WHITE;
-       } else if (p.x < BOXSIZE*5) {
-         currentcolor = ILI9341_DARKGREY;
-       } else if (p.x < BOXSIZE*6) {
-         currentcolor = ILI9341_BLACK;
-       }
-     }
+    offset_y = floor(p.y / BOXSIZE) * 6;
+    offset_x = floor(p.x / BOXSIZE);
+
+    colorIndex = offset_y + offset_x;
+    currentcolor = remoteColors[colorIndex].tft;
+    
   } else if (p.y < BOXSIZE*5 && p.x < BOXSIZE*3 ) {
     active = !active;
     paintSwitch();
   }
 
-  // Paint the Current Color inset slightly
-  tft.fillRect(BOXSIZE*3 + 2, BOXSIZE*2 + 2, BOXSIZE*3 - 4, BOXSIZE*2 - 4, currentcolor);
-  updatePixel();
+  if (oldcolor != currentcolor) {
+    // Paint the Current Color inset slightly
+    tft.fillRect(BOXSIZE*3 + 2, BOXSIZE*3 + 2, BOXSIZE*3 - 4, BOXSIZE*2 - 4, currentcolor);
+    updatePixel();
+  }
 }
 
 boolean samePoint(TS_Point p1, TS_Point p2) {
