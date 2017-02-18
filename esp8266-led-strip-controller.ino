@@ -39,23 +39,32 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXELCOUNT, PIXELPIN, NEO_GRB + NEO_
 uint8_t currentPixel = 0;
 
 void paintColors() {
-  
-  // make the color selection boxes
-  // First Row
-  tft.fillRect(0, 0, BOXSIZE, BOXSIZE, ILI9341_RED);
-  tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, ILI9341_ORANGE);
-  tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, ILI9341_YELLOW);
-  tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, ILI9341_GREENYELLOW);
-  tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, ILI9341_GREEN);
-  tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, ILI9341_CYAN);
 
-  // Second Row
-  tft.fillRect(0, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_BLUE);
-  tft.fillRect(BOXSIZE, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_PURPLE);
-  tft.fillRect(BOXSIZE*2, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_MAGENTA);
-  tft.fillRect(BOXSIZE*3, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_WHITE);
-  tft.fillRect(BOXSIZE*4, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_DARKGREY);
-  tft.fillRect(BOXSIZE*5, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_BLACK);
+  uint8_t x, y, inc = 0;
+
+  for (y = 0; y < 3; y++) {
+    for (x = 0; x < 6; x++) {
+      tft.fillRect(BOXSIZE*x, BOXSIZE*y, BOXSIZE, BOXSIZE, remoteColors[inc].tft);
+      inc++;
+    }
+  }
+  
+//  // make the color selection boxes
+//  // First Row
+//  tft.fillRect(0, 0, BOXSIZE, BOXSIZE, ILI9341_RED);
+//  tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, ILI9341_ORANGE);
+//  tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, ILI9341_YELLOW);
+//  tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, ILI9341_GREENYELLOW);
+//  tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, ILI9341_GREEN);
+//  tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, ILI9341_CYAN);
+//
+//  // Second Row
+//  tft.fillRect(0, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_BLUE);
+//  tft.fillRect(BOXSIZE, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_PURPLE);
+//  tft.fillRect(BOXSIZE*2, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_MAGENTA);
+//  tft.fillRect(BOXSIZE*3, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_WHITE);
+//  tft.fillRect(BOXSIZE*4, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_DARKGREY);
+//  tft.fillRect(BOXSIZE*5, BOXSIZE, BOXSIZE, BOXSIZE, ILI9341_BLACK);
 }
 
 
@@ -65,13 +74,13 @@ void paintSwitch() {
   ui.setTextAlignment(CENTER);
 
   if (active) {
-    tft.fillRect(0, BOXSIZE*2, BOXSIZE*3, BOXSIZE*2, ILI9341_WHITE);
+    tft.fillRect(0, BOXSIZE*3, BOXSIZE*3, BOXSIZE*2, ILI9341_WHITE);
     ui.setTextColor(ILI9341_BLACK);
-    ui.drawString(BOXSIZE*1.4, BOXSIZE*3.25, "ON");
+    ui.drawString(BOXSIZE*1.4, BOXSIZE*4.25, "ON");
   } else {
-    tft.fillRect(0, BOXSIZE*2, BOXSIZE*3, BOXSIZE*2, ILI9341_BLACK);
+    tft.fillRect(0, BOXSIZE*3, BOXSIZE*3, BOXSIZE*2, ILI9341_BLACK);
     ui.setTextColor(ILI9341_WHITE);
-    ui.drawString(BOXSIZE*1.4, BOXSIZE*3.25, "OFF");
+    ui.drawString(BOXSIZE*1.4, BOXSIZE*4.25, "OFF");
   }
 }
 
