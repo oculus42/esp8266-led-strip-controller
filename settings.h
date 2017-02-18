@@ -7,7 +7,7 @@ See more at http://blog.squix.ch
 const int UPDATE_INTERVAL_SECS = 10 * 60;  // Update every 10 minutes
 boolean USE_TOUCHSCREEN_WAKE = true;       // use the touchscreen to wake up, ~90mA current draw
 boolean DEEP_SLEEP = false;                 // use the touchscreen for deep sleep, ~10mA current draw but doesnt work
-int     AWAKE_TIME = 5;                   // how many seconds to stay 'awake' before going back to zzz
+int     AWAKE_TIME = 15;                   // how many seconds to stay 'awake' before going back to zzz
 
 // Pins for the ILI9341
 #define TFT_DC 15

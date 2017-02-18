@@ -17,15 +17,20 @@
 
 #include "tft.h"
 #include "colors.h"
+#include "settings.h"
 
-// Size of the color selection boxes and the paintbrush size
+// Size of the color selection boxes
 #define BOXSIZE 40
-int oldcolor, currentcolor;
+
+int oldColor, currentColor;
 uint8_t colorIndex;
 
-TS_Point oldpoint, p;
+TS_Point oldPoint, p;
 
 boolean active = true;
+boolean sleep = false;
+
+unsigned long lastActionMillis;
 
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
@@ -81,15 +86,32 @@ void setup(void) {
   
   tft.begin();
   tft.fillScreen(ILI9341_BLACK);
+
+  // we'll use STMPE's GPIO 2 for backlight control
+  ts.writeRegister8(STMPE_GPIO_DIR, _BV(2));
+  ts.writeRegister8(STMPE_GPIO_ALT_FUNCT, _BV(2));
+  // backlight on
+  ts.writeRegister8(STMPE_GPIO_SET_PIN, _BV(2));
   
   paintColors();
   paintSwitch();
 
-  currentcolor = ILI9341_RED;
+  currentColor = ILI9341_RED;
   colorIndex = 0;
 
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
+
+  lastActionMillis = millis();
+}
+
+void disableBacklight() {
+  ts.writeRegister8(STMPE_GPIO_CLR_PIN, _BV(2)); // backlight off  
+  ts.writeRegister8(STMPE_INT_STA, 0xFF);
+}
+
+void enableBacklight() {
+    ts.writeRegister8(STMPE_GPIO_SET_PIN, _BV(2));
 }
 
 void updatePixel() {
@@ -105,23 +127,26 @@ void checkSettings() {
   
   // Color buttons first
   if (p.y < BOXSIZE*3) {
-    oldcolor = currentcolor;
+    oldColor = currentColor;
 
     offset_y = floor(p.y / BOXSIZE) * 6;
     offset_x = floor(p.x / BOXSIZE);
 
     colorIndex = offset_y + offset_x;
-    currentcolor = remoteColors[colorIndex].tft;
+    currentColor = remoteColors[colorIndex].tft;
     
   } else if (p.y < BOXSIZE*5 && p.x < BOXSIZE*3 ) {
     active = !active;
     paintSwitch();
   }
 
-  if (oldcolor != currentcolor) {
+  if (oldColor != currentColor) {
     // Paint the Current Color inset slightly
-    tft.fillRect(BOXSIZE*3 + 2, BOXSIZE*3 + 2, BOXSIZE*3 - 4, BOXSIZE*2 - 4, currentcolor);
+    tft.fillRect(BOXSIZE*3 + 2, BOXSIZE*3 + 2, BOXSIZE*3 - 4, BOXSIZE*2 - 4, currentColor);
     updatePixel();
+    
+    // Set last action time (for sleep)
+    lastActionMillis = millis();
   }
 }
 
@@ -136,21 +161,43 @@ boolean closePoint(TS_Point p1, TS_Point p2) {
 void loop() {
   // Retrieve a point  
   p = ts.getPoint(); 
- 
-  // Scale from ~0->4000 to tft.width using the calibration #'s
-  p.x = map(p.x, TS_MINX, TS_MAXX, 0, tft.width());
-  p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
 
-  // ts.touched() solves for buffered input
-  if (ts.touched() && !closePoint(p, oldpoint)) {
-    Serial.print("\nX = "); Serial.print(p.x);
-    Serial.print("\tY = "); Serial.print(p.y);
-    Serial.print("\tPressure = "); Serial.println(p.z); 
-    checkSettings();
+  // If sleeping, onthing happens until touched
+  if (sleep) {
+    if (ts.touched()) {
+      sleep = false;
+      
+      lastActionMillis = millis();
+      enableBacklight();
+      delay(1000);
+      yield();
+    }
   } else {
-    Serial.print('.');
-  }
 
-  // Save last point
-  oldpoint = p;
+    if (ts.touched()) {
+      
+      // Scale from ~0->4000 to tft.width using the calibration #'s
+      p.x = map(p.x, TS_MINX, TS_MAXX, 0, tft.width());
+      p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
+    
+      // ts.touched() solves for buffered input
+      if (ts.touched() && !closePoint(p, oldPoint)) {
+        Serial.print("\nX = "); Serial.print(p.x);
+        Serial.print("\tY = "); Serial.print(p.y);
+        Serial.print("\tPressure = "); Serial.println(p.z); 
+        checkSettings();
+      } else {
+        Serial.print('.');
+      }
+  
+      // Save last point
+      oldPoint = p;
+    } else {
+      if (lastActionMillis + (AWAKE_TIME * 1000) < millis()) {
+        
+        disableBacklight();
+        sleep = true;
+      }
+    }
+  }
 }
