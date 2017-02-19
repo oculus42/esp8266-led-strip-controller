@@ -1,7 +1,7 @@
 /***************************************************
   Based on the Adafruit TFT FeatherWing example
   ----> http://www.adafruit.com/products/3315
-  
+
   With content from Daniel Eichhorn
   See more at http://blog.squix.ch
 
@@ -40,7 +40,7 @@ void setup(void) {
     while (1);
   }
   Serial.println("Touchscreen started");
-  
+
   tft.begin();
   tft.fillScreen(ILI9341_BLACK);
 
@@ -53,7 +53,7 @@ void setup(void) {
   // White by default
   colorIndex = 15;
   currentCol = remoteColors[colorIndex];
-  
+
   paintColors();
   paintSwitch(active);
   updateColor();
@@ -67,15 +67,15 @@ void updateColor() {
 
 void checkSettings() {
   uint8_t offset_x, offset_y;
-  
+
   // Color buttons first
-  if (p.y < BOXSIZE*4) {
+  if (p.y < BOXSIZE * 4) {
 
     // No color changes if off
     if (!active) {
       return;
     }
-    
+
     oldCol = currentCol;
 
     offset_y = floor(p.y / BOXSIZE) * 5;
@@ -83,10 +83,10 @@ void checkSettings() {
 
     colorIndex = offset_y + offset_x;
     currentCol = remoteColors[colorIndex];
-    
+
   } else if (p.y >= 240 && p.x < 120 ) {
     active = !active;
-  
+
     paintSwitch(active);
 
     if (active) {
@@ -100,13 +100,13 @@ void checkSettings() {
     lastActionMillis = millis();
     return;
   }
-  
+
   // Only if there is a change do we do anything.
   if (oldCol.tft != currentCol.tft) {
     // Paint the Current Color inset slightly
-    tft.fillRect(BOXSIZE*3 + 2, BOXSIZE*4 + 2, BOXSIZE*3 - 4, BOXSIZE*2 - 4, currentCol.tft);
+    tft.fillRect(BOXSIZE * 3 + 2, BOXSIZE * 4 + 2, BOXSIZE * 3 - 4, BOXSIZE * 2 - 4, currentCol.tft);
     updateColor();
-    
+
     // Set last action time (for sleep)
     lastActionMillis = millis();
   }
@@ -120,46 +120,47 @@ boolean closePoint(TS_Point p1, TS_Point p2) {
   return abs(p1.x - p2.x) < 5 && abs(p1.y - p2.y) < 5;
 }
 
-void loop() {
-  // Retrieve a point  
-  p = ts.getPoint(); 
+void getLatestTouchPoint() {
+  do {
+    p = ts.getPoint();
+  } while ( ! ts.bufferEmpty() );
+  
+  ts.writeRegister8(STMPE_INT_STA, 0xFF);    // clear the 'touched' interrupts
 
-  // If sleeping, onthing happens until touched
-  if (sleep) {
-    if (ts.touched()) {
+  // Scale from ~0->4000 to tft.width using the calibration #'s
+  p.x = map(p.x, TS_MINX, TS_MAXX, 0, tft.width());
+  p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
+}
+
+void loop() {
+
+  if (ts.touched()) {
+
+    getLatestTouchPoint();
+
+    // If sleeping, wake up
+    if (sleep) {
+
       sleep = false;
-      
+
       lastActionMillis = millis();
       enableBacklight();
       delay(500);
       yield();
-    }
-  } else {
-
-    if (ts.touched()) {
-      
-      // Scale from ~0->4000 to tft.width using the calibration #'s
-      p.x = map(p.x, TS_MINX, TS_MAXX, 0, tft.width());
-      p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
-    
-      // ts.touched() solves for buffered input
-      if (ts.touched() && !closePoint(p, oldPoint)) {
-        Serial.print("\nX = "); Serial.print(p.x);
-        Serial.print("\tY = "); Serial.print(p.y);
-        Serial.print("\tPressure = "); Serial.println(p.z); 
-        checkSettings();
-      } else {
-        Serial.print('.');
-      }
-  
-      // Save last point
-      oldPoint = p;
     } else {
-      if (lastActionMillis + (AWAKE_TIME * 1000) < millis()) {
-        
-        disableBacklight();
-        sleep = true;
-      }
+      // Solves for buffered input;
+
+      Serial.print("\nX = "); Serial.print(p.x);
+      Serial.print("\tY = "); Serial.print(p.y);
+      Serial.print("\tPressure = "); Serial.println(p.z);
+      checkSettings();
+
+      // Save last point
+      // oldPoint = p;
     }
+  } else if (lastActionMillis + (AWAKE_TIME * 1000) < millis()) {
+
+    disableBacklight();
+    sleep = true;
   }
 }
