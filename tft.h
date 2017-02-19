@@ -6,6 +6,12 @@
 #include <Adafruit_ILI9341.h> // Hardware-specific library
 #include <Adafruit_STMPE610.h>
 
+#include "ArialRoundedMTBold_36.h"
+#include "GfxUi.h"
+
+#include "colors.h"
+#include "settings.h"
+
 #ifdef ESP8266
    #define STMPE_CS 16
    #define TFT_CS   0
@@ -37,17 +43,23 @@
    #define SD_CS    PC5
 #endif
 
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
-Adafruit_STMPE610 ts = Adafruit_STMPE610(STMPE_CS);
+#ifndef _TFT_SETUP
+#define _TFT_SETUP
 
-#include "ArialRoundedMTBold_36.h"
+extern Adafruit_ILI9341 tft;
+extern Adafruit_STMPE610 ts;
 
-// Additional UI functions
-#include "GfxUi.h"
-GfxUi ui = GfxUi(&tft);
+extern GfxUi ui;
 
 // This is calibration data for the raw touch data to the screen coordinates
 #define TS_MINX 3800
 #define TS_MAXX 100
 #define TS_MINY 100
 #define TS_MAXY 3750
+
+void disableBacklight(void);
+void enableBacklight(void);
+void paintColors(void);
+void paintSwitch(bool active);
+
+#endif

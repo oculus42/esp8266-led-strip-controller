@@ -16,12 +16,7 @@
  ****************************************************/
 
 #include "tft.h"
-#include "colors.h"
 #include "LEDStrip.h"
-#include "settings.h"
-
-// Size of the color selection boxes
-#define BOXSIZE 40
 
 irColor_s currentCol, oldCol;
 uint8_t colorIndex;
@@ -33,40 +28,7 @@ boolean sleep = false;
 
 unsigned long lastActionMillis;
 
-// RGB Driver
-#include "RGBdriver.h"
-#define RGB_CLK 5        
-#define RGB_DATA 4
 
-
-void paintColors() {
-
-  uint8_t x, y, inc = 0;
-
-  for (y = 0; y < 3; y++) {
-    for (x = 0; x < 6; x++) {
-      tft.fillRect(BOXSIZE*x, BOXSIZE*y, BOXSIZE, BOXSIZE, remoteColors[inc].tft);
-      inc++;
-    }
-  }
-}
-
-
-void paintSwitch() {
-  // Paint the ON/OFF switch
-  tft.setFont(&ArialRoundedMTBold_36);
-  ui.setTextAlignment(CENTER);
-
-  if (active) {
-    tft.fillRect(0, BOXSIZE*3, BOXSIZE*3, BOXSIZE*2, ILI9341_WHITE);
-    ui.setTextColor(ILI9341_BLACK);
-    ui.drawString(BOXSIZE*1.4, BOXSIZE*4.25, "ON");
-  } else {
-    tft.fillRect(0, BOXSIZE*3, BOXSIZE*3, BOXSIZE*2, ILI9341_BLACK);
-    ui.setTextColor(ILI9341_WHITE);
-    ui.drawString(BOXSIZE*1.4, BOXSIZE*4.25, "OFF");
-  }
-}
 
 void setup(void) {
   Serial.begin(115200);
@@ -98,16 +60,7 @@ void setup(void) {
   lastActionMillis = millis();
 }
 
-void disableBacklight() {
-  ts.writeRegister8(STMPE_GPIO_CLR_PIN, _BV(2)); // backlight off  
-  ts.writeRegister8(STMPE_INT_STA, 0xFF);
-}
-
-void enableBacklight() {
-    ts.writeRegister8(STMPE_GPIO_SET_PIN, _BV(2));
-}
-
-void updatePixel() {
+void updateColor() {
   fadeStripColor(remoteColors[colorIndex].color);
 }
 
@@ -126,7 +79,19 @@ void checkSettings() {
     
   } else if (p.y < BOXSIZE*5 && p.x < BOXSIZE*3 ) {
     active = !active;
-    paintSwitch();
+  
+    paintSwitch(active);
+
+    if (active) {
+      updateColor();
+    } else {
+      turnOffStrip();
+    }
+
+    // Prevent double-touch
+    delay(100);
+    lastActionMillis = millis();
+    return;
   }
   
   // Only if there is a change do we do anything.

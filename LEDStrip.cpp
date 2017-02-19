@@ -1,9 +1,5 @@
 // RGB Driver
-#include "colors.h"
-
-#include "RGBdriver.h"
-#define RGB_CLK 5
-#define RGB_DATA 4
+#include "LEDStrip.h"
 
 RGBdriver Driver(RGB_CLK, RGB_DATA);
 
@@ -12,7 +8,7 @@ int16_t r1, g1, b1;
 uint8_t brightness = 127, len, i;
 
 color_s currentColor, oldColor;
-
+color_s offColor = color_s {0, 0, 0};
 
 // LED Strip can start in unexpected state so we must turn it off.
 void setupLEDStrip() {
@@ -35,7 +31,9 @@ void setStripColor() {
 
 void setColor(color_s nextColor) {
   currentColor = nextColor;
+  setStripColor();
 }
+
 
 void fadeStripColor(color_s nextColor) {
   oldColor = currentColor;
@@ -53,12 +51,18 @@ void fadeStripColor(color_s nextColor) {
 
     setStripColor();
     delay(5);
+    // yield();
   }
 
   currentColor = nextColor;
   setStripColor();
 }
 
+
+void turnOffStrip() {
+  setColor(offColor);
+  // fadeStripColor(offColor);
+}
 
 void increaseBrightness() {
    // Brighter
