@@ -21,6 +21,6 @@ const int AWAKE_TIME = 10;                   // how many seconds to stay 'awake'
 #define STMPE_IRQ 4
 
 // Size of the color selection boxes
-#define BOXSIZE 40
+#define BOXSIZE 48
 
 #endif
