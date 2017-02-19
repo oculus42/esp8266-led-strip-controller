@@ -55,11 +55,8 @@ void setup(void) {
   currentCol = remoteColors[colorIndex];
   
   paintColors();
-  paintSwitch();
-  
-  // White by default
-  currentCol = remoteColors[5];
-  colorIndex = 0;
+  paintSwitch(active);
+  updateColor();
 
   lastActionMillis = millis();
 }
