@@ -49,6 +49,10 @@ void setup(void) {
   ts.writeRegister8(STMPE_GPIO_ALT_FUNCT, _BV(2));
   // backlight on
   ts.writeRegister8(STMPE_GPIO_SET_PIN, _BV(2));
+
+  // White by default
+  colorIndex = 15;
+  currentCol = remoteColors[colorIndex];
   
   paintColors();
   paintSwitch();
@@ -68,16 +72,22 @@ void checkSettings() {
   uint8_t offset_x, offset_y;
   
   // Color buttons first
-  if (p.y < BOXSIZE*3) {
+  if (p.y < BOXSIZE*4) {
+
+    // No color changes if off
+    if (!active) {
+      return;
+    }
+    
     oldCol = currentCol;
 
-    offset_y = floor(p.y / BOXSIZE) * 6;
+    offset_y = floor(p.y / BOXSIZE) * 5;
     offset_x = floor(p.x / BOXSIZE);
 
     colorIndex = offset_y + offset_x;
     currentCol = remoteColors[colorIndex];
     
-  } else if (p.y < BOXSIZE*5 && p.x < BOXSIZE*3 ) {
+  } else if (p.y >= 240 && p.x < 120 ) {
     active = !active;
   
     paintSwitch(active);
@@ -97,8 +107,8 @@ void checkSettings() {
   // Only if there is a change do we do anything.
   if (oldCol.tft != currentCol.tft) {
     // Paint the Current Color inset slightly
-    tft.fillRect(BOXSIZE*3 + 2, BOXSIZE*3 + 2, BOXSIZE*3 - 4, BOXSIZE*2 - 4, currentCol.tft);
-    updatePixel();
+    tft.fillRect(BOXSIZE*3 + 2, BOXSIZE*4 + 2, BOXSIZE*3 - 4, BOXSIZE*2 - 4, currentCol.tft);
+    updateColor();
     
     // Set last action time (for sleep)
     lastActionMillis = millis();

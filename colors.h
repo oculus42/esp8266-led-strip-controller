@@ -16,6 +16,6 @@ struct irColor_s {
   color_s color;
 };
 
-extern irColor_s remoteColors [18];
+extern irColor_s remoteColors [20];
 
 #endif
