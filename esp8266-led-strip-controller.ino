@@ -17,12 +17,13 @@
 
 #include "tft.h"
 #include "colors.h"
+#include "LEDStrip.h"
 #include "settings.h"
 
 // Size of the color selection boxes
 #define BOXSIZE 40
 
-int oldColor, currentColor;
+irColor_s currentCol, oldCol;
 uint8_t colorIndex;
 
 TS_Point oldPoint, p;
@@ -32,17 +33,11 @@ boolean sleep = false;
 
 unsigned long lastActionMillis;
 
-#include <Adafruit_NeoPixel.h>
-#ifdef __AVR__
-  #include <avr/power.h>
-#endif
-#define PIXELCOUNT 9
-#define PIXELPIN 4
+// RGB Driver
+#include "RGBdriver.h"
+#define RGB_CLK 5        
+#define RGB_DATA 4
 
-// Temp pin setup
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXELCOUNT, PIXELPIN, NEO_GRB + NEO_KHZ800);
-
-uint8_t currentPixel = 0;
 
 void paintColors() {
 
@@ -95,12 +90,10 @@ void setup(void) {
   
   paintColors();
   paintSwitch();
-
-  currentColor = ILI9341_RED;
+  
+  // White by default
+  currentCol = remoteColors[5];
   colorIndex = 0;
-
-  strip.begin();
-  strip.show(); // Initialize all pixels to 'off'
 
   lastActionMillis = millis();
 }
@@ -115,11 +108,7 @@ void enableBacklight() {
 }
 
 void updatePixel() {
-  color_s col = remoteColors[colorIndex].color;
-  
-  strip.setPixelColor(currentPixel, strip.Color(col.red, col.green, col.blue));
-  currentPixel = (currentPixel + 1) % PIXELCOUNT;
-  strip.show();
+  fadeStripColor(remoteColors[colorIndex].color);
 }
 
 void checkSettings() {
@@ -127,22 +116,23 @@ void checkSettings() {
   
   // Color buttons first
   if (p.y < BOXSIZE*3) {
-    oldColor = currentColor;
+    oldCol = currentCol;
 
     offset_y = floor(p.y / BOXSIZE) * 6;
     offset_x = floor(p.x / BOXSIZE);
 
     colorIndex = offset_y + offset_x;
-    currentColor = remoteColors[colorIndex].tft;
+    currentCol = remoteColors[colorIndex];
     
   } else if (p.y < BOXSIZE*5 && p.x < BOXSIZE*3 ) {
     active = !active;
     paintSwitch();
   }
-
-  if (oldColor != currentColor) {
+  
+  // Only if there is a change do we do anything.
+  if (oldCol.tft != currentCol.tft) {
     // Paint the Current Color inset slightly
-    tft.fillRect(BOXSIZE*3 + 2, BOXSIZE*3 + 2, BOXSIZE*3 - 4, BOXSIZE*2 - 4, currentColor);
+    tft.fillRect(BOXSIZE*3 + 2, BOXSIZE*3 + 2, BOXSIZE*3 - 4, BOXSIZE*2 - 4, currentCol.tft);
     updatePixel();
     
     // Set last action time (for sleep)
@@ -169,7 +159,7 @@ void loop() {
       
       lastActionMillis = millis();
       enableBacklight();
-      delay(1000);
+      delay(500);
       yield();
     }
   } else {
