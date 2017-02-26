@@ -14,6 +14,7 @@
   Written by Limor Fried/Ladyada for Adafruit Industries.
   MIT license, all text above must be included in any redistribution
  ****************************************************/
+#include <Wire.h>
 
 #include "tft.h"
 #include "LEDStrip.h"
@@ -28,10 +29,9 @@ boolean sleep = false;
 
 unsigned long lastActionMillis;
 
-
-
 void setup(void) {
   Serial.begin(115200);
+  Wire.begin(WIRE_ADDR_ME);
 
   delay(10);
   Serial.println("FeatherWing TFT");
@@ -124,7 +124,7 @@ void getLatestTouchPoint() {
   do {
     p = ts.getPoint();
   } while ( ! ts.bufferEmpty() );
-  
+
   ts.writeRegister8(STMPE_INT_STA, 0xFF);    // clear the 'touched' interrupts
 
   // Scale from ~0->4000 to tft.width using the calibration #'s

@@ -1,17 +1,17 @@
 
+// Swap out the LED RGB Strip driver with a Wire protocol
+
+#include <Wire.h>
+
 #include "colors.h"
-#include "RGBdriver.h"
+#include "settings.h"
 
-#ifndef _LED_STRIP
-#define _LED_STRIP
+#ifndef _LED_Pass
+#define _LED_Pass
 
-#define RGB_CLK 5
-#define RGB_DATA 4
-
-void setupLEDStrip(void);
 void setStripColor(void);
 void setColor(color_s nextColor);
-void fadeStripColor(color_s nextColor); 
+void fadeStripColor(color_s nextColor);
 void increaseBrightness(void);
 void decreaseBrightness(void);
 void turnOffStrip(void);

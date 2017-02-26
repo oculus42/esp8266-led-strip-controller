@@ -8,8 +8,8 @@ See more at http://blog.squix.ch
 
 // Setup
 const int UPDATE_INTERVAL_SECS = 10 * 60;  // Update every 10 minutes
-const boolean USE_TOUCHSCREEN_WAKE = true;       // use the touchscreen to wake up, ~90mA current draw
-const boolean DEEP_SLEEP = false;                 // use the touchscreen for deep sleep, ~10mA current draw but doesnt work
+const bool USE_TOUCHSCREEN_WAKE = true;       // use the touchscreen to wake up, ~90mA current draw
+const bool DEEP_SLEEP = false;                 // use the touchscreen for deep sleep, ~10mA current draw but doesnt work
 const int AWAKE_TIME = 10;                   // how many seconds to stay 'awake' before going back to zzz
 
 // Pins for the ILI9341
@@ -22,5 +22,9 @@ const int AWAKE_TIME = 10;                   // how many seconds to stay 'awake'
 
 // Size of the color selection boxes
 #define BOXSIZE 48
+
+// Wire Setup
+#define WIRE_ADDR_LED 9
+#define WIRE_ADDR_ME 8
 
 #endif
