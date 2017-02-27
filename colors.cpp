@@ -1,6 +1,6 @@
 #include "colors.h"
 
-irColor_s remoteColors [20] = {
+const irColor_s remoteColors [20] PROGMEM = {
   {0xFF1AE5, 0xF800, {255, 0, 0} }, // Red
   {0xFF2AD5, 0xFA00, {255, 63, 0} }, // Red-Orange (Red 2)
   {0xFF0AF5, 0xFBE0, {255, 127, 0} }, // Orange (Red 3)
